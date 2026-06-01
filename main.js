@@ -1,18 +1,63 @@
-// Seleciona os elementos do HTML
-const btnHamburguer = document.getElementById('menu-hamburguer');
-const navMenu = document.getElementById('nav-menu');
+const btnHamburguer =
+document.getElementById("menu-hamburguer");
 
-// Adiciona um evento de clique no botão hambúrguer
-btnHamburguer.addEventListener('click', () => {
-    // A função toggle adiciona a classe 'ativo' se não tiver, ou remove se já tiver
-    navMenu.classList.toggle('ativo');
+const navMenu =
+document.getElementById("nav-menu");
+
+btnHamburguer.addEventListener("click",()=>{
+
+navMenu.classList.toggle("ativo");
+
 });
 
-// Opcional: Fechar o menu ao clicar em um dos links (melhora a experiência no celular)
-const linksMenu = document.querySelectorAll('.nav-lista a');
+function animarContador(id, alvo){
 
-linksMenu.forEach(link => {
-    link.addEventListener('click', () => {
-        navMenu.classList.remove('ativo');
-    });
+let numero = 0;
+
+const intervalo = setInterval(()=>{
+
+numero++;
+
+document.getElementById(id).textContent = numero;
+
+if(numero >= alvo){
+
+clearInterval(intervalo);
+
+}
+
+},20);
+
+}
+
+animarContador("contador1",80);
+animarContador("contador2",95);
+animarContador("contador3",90);
+
+function verificarQuiz(correto){
+
+const resultado =
+document.getElementById("resultadoQuiz");
+
+if(correto){
+
+resultado.innerHTML =
+"✅ Resposta correta!";
+
+}else{
+
+resultado.innerHTML =
+"❌ Tente novamente.";
+
+}
+
+}
+
+const tema =
+document.getElementById("tema");
+
+tema.addEventListener("click",()=>{
+
+document.body.classList.toggle("dark");
+
 });

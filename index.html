@@ -1,35 +1,208 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manejo Integrado de Pragas - Agrinho 2026</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agrinho 2026 | Manejo Integrado de Pragas</title>
+<link rel="stylesheet" href="reset.css">
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-    <header class="cabecalho">
-        <div class="logo">
-            <a href="#">🌱 Agrinho 2026 | MIP</a>
-        </div>
+<header class="cabecalho">
 
-        <button class="menu-hamburguer" id="menu-hamburguer" aria-label="Abrir menu">
-            <span class="linha"></span>
-            <span class="linha"></span>
-            <span class="linha"></span>
-        </button>
+<div class="logo">
+🌱 Agrinho 2026 | MIP
+</div>
 
-        <nav class="nav-menu" id="nav-menu">
-            <ul class="nav-lista">
-                <li><a href="#inicio">Início</a></li>
-                <li><a href="#o-que-e">O que é o MIP?</a></li>
-                <li><a href="#etapas">Etapas do Manejo</a></li>
-                <li><a href="#beneficios">Benefícios Ambientais</a></li>
-                <li><a href="#contato">Contato</a></li>
-            </ul>
-        </nav>
-    </header>
+<button class="menu-hamburguer" id="menu-hamburguer">
+☰
+</button>
 
-    <script src="main.js"></script>
+<nav class="nav-menu" id="nav-menu">
+<ul class="nav-lista">
+<li><a href="#inicio">Início</a></li>
+<li><a href="#oquee">O que é?</a></li>
+<li><a href="#etapas">Etapas</a></li>
+<li><a href="#beneficios">Benefícios</a></li>
+<li><a href="#quiz">Quiz</a></li>
+<li><a href="#contato">Contato</a></li>
+</ul>
+</nav>
+
+<button id="tema">🌙</button>
+
+</header>
+
+<main>
+
+<section id="inicio" class="hero">
+
+<h1>Manejo Integrado de Pragas</h1>
+
+<p>
+Uma estratégia sustentável que protege as plantações,
+preserva o meio ambiente e reduz o uso excessivo de defensivos.
+</p>
+
+<a href="#oquee" class="botao">
+Saiba Mais
+</a>
+
+</section>
+
+<section id="oquee">
+
+<h2>O que é o MIP?</h2>
+
+<p>
+O Manejo Integrado de Pragas (MIP) é uma técnica agrícola que
+combina métodos biológicos, culturais e químicos para controlar
+pragas de maneira eficiente e sustentável.
+</p>
+
+<div class="cards">
+
+<div class="card">
+<h3>🔍 Monitoramento</h3>
+<p>Acompanhamento constante da lavoura.</p>
+</div>
+
+<div class="card">
+<h3>🐞 Controle Biológico</h3>
+<p>Uso de inimigos naturais das pragas.</p>
+</div>
+
+<div class="card">
+<h3>🌱 Sustentabilidade</h3>
+<p>Redução de impactos ambientais.</p>
+</div>
+
+</div>
+
+</section>
+
+<section id="etapas">
+
+<h2>Etapas do Manejo</h2>
+
+<div class="timeline">
+
+<div class="etapa">1. Monitoramento</div>
+<div class="etapa">2. Identificação</div>
+<div class="etapa">3. Avaliação</div>
+<div class="etapa">4. Controle</div>
+<div class="etapa">5. Reavaliação</div>
+
+</div>
+
+</section>
+
+<section id="beneficios">
+
+<h2>Benefícios Ambientais</h2>
+
+<ul>
+
+<li>✅ Menor uso de defensivos.</li>
+
+<li>✅ Preservação da biodiversidade.</li>
+
+<li>✅ Proteção dos recursos hídricos.</li>
+
+<li>✅ Agricultura mais sustentável.</li>
+
+<li>✅ Maior equilíbrio ecológico.</li>
+
+</ul>
+
+</section>
+
+<section class="estatisticas">
+
+<h2>Resultados do MIP</h2>
+
+<div class="numeros">
+
+<div>
+<span id="contador1">0</span>%
+<p>Redução de defensivos</p>
+</div>
+
+<div>
+<span id="contador2">0</span>%
+<p>Proteção ambiental</p>
+</div>
+
+<div>
+<span id="contador3">0</span>%
+<p>Eficiência produtiva</p>
+</div>
+
+</div>
+
+</section>
+
+<section id="quiz">
+
+<h2>Quiz Rápido</h2>
+
+<p>
+Qual é o principal objetivo do MIP?
+</p>
+
+<button onclick="verificarQuiz(true)">
+Controlar pragas de forma sustentável
+</button>
+
+<button onclick="verificarQuiz(false)">
+Eliminar toda biodiversidade
+</button>
+
+<button onclick="verificarQuiz(false)">
+Aumentar a infestação
+</button>
+
+<p id="resultadoQuiz"></p>
+
+</section>
+
+<section id="contato">
+
+<h2>Contato</h2>
+
+<form>
+
+<input type="text" placeholder="Nome">
+
+<input type="email" placeholder="Email">
+
+<textarea placeholder="Mensagem"></textarea>
+
+<button type="submit">
+Enviar
+</button>
+
+</form>
+
+</section>
+
+</main>
+
+<footer>
+
+<p>
+Projeto desenvolvido para o Programa Agrinho 2026.
+</p>
+
+<p>
+Tema: Manejo Integrado de Pragas.
+</p>
+
+</footer>
+
+<script src="main.js"></script>
+
 </body>
 </html>
