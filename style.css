@@ -37,9 +37,38 @@ list-style:none;
 gap:20px;
 }
 
+/* --- ATUALIZADO: LINKS DO MENU --- */
 .nav-lista a{
 color:white;
 text-decoration:none;
+position:relative;
+padding:5px 0;
+font-weight:500;
+transition:color 0.3s ease;
+}
+
+/* --- NOVO: LINHA ANIMADA EMBAIXO --- */
+.nav-lista a::after{
+content:'';
+position:absolute;
+width:100%;
+transform:scaleX(0);
+height:2px;
+bottom:0;
+left:0;
+background-color:#4caf50;
+transform-origin:bottom right;
+transition:transform 0.3s ease-out;
+}
+
+/* --- NOVO: EFEITO HOVER NO MENU --- */
+.nav-lista a:hover{
+color:#e8f5e9;
+}
+
+.nav-lista a:hover::after{
+transform:scaleX(1);
+transform-origin:bottom left;
 }
 
 .hero{
@@ -53,7 +82,7 @@ background:linear-gradient(
 rgba(0,0,0,.4),
 rgba(0,0,0,.4)
 ),
-url("https://images.unsplash.com/photo-1500937386664-56d1dfef3854");
+url("https://unsplash.com");
 background-size:cover;
 color:white;
 }
