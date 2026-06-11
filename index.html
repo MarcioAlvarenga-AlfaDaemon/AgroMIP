@@ -9,55 +9,63 @@
 </head>
 <body>
 
+    <div id="cookie-banner" class="cookie-banner hidden">
+        <p>🌱 O AgroMIP utiliza cookies para salvar seu progresso no quiz e melhorar sua experiência de navegação conforme as diretrizes da LGPD.</p>
+        <button onclick="aceitarCookies()" class="btn-cookie">Aceitar e Continuar</button>
+    </div>
+
     <header class="hero">
         <nav class="navbar">
             <div class="logo">🌱 AgroMIP</div>
             <ul class="nav-links">
-                <li><a href="#sobre">Sobre</a></li>
-                <li><a href="#graficos">Dados</a></li>
-                <li><a href="#quiz" class="btn-nav">Fazer Quiz</a></li>
+                <li><a href="#sobre">Conceito</a></li>
+                <li><a href="#pilares">Diretrizes</a></li>
+                <li><a href="#graficos">Dados Científicos</a></li>
+                <li><a href="#quiz" class="btn-nav">Desafio</a></li>
             </ul>
         </nav>
         <div class="hero-content">
-            <span class="badge">Agrinho 2026</span>
-            <h2>Tecnologia e Sustentabilidade no Campo</h2>
-            <p>Inovação através do Manejo Integrado de Pragas para um futuro agrícola consciente.</p>
-            <a class="btn-primary" href="#sobre">Explorar Projeto</a>
+            <span class="badge">Agrinho 2026 — Ciência no Campo</span>
+            <h2>O Futuro do Manejo Sustentável</h2>
+            <p>Uma plataforma baseada nos conceitos de sustentabilidade e inovação da Embrapa, Bayer, BASF e Syngenta.</p>
+            <a class="btn-primary" href="#sobre">Ver Evidências</a>
         </div>
     </header>
 
     <main>
         <section id="sobre" class="section-container">
-            <div class="section-header">
-                <h2>O que é o MIP?</h2>
-                <p>Uma abordagem estratégica que une tecnologia, biologia e preservação ambiental.</p>
-            </div>
-            <div class="sobre-content">
-                <p>O <strong>Manejo Integrado de Pragas (MIP)</strong> não é apenas uma técnica, é uma filosofia de cultivo. Ele integra o monitoramento constante da lavoura, a prevenção biológica e a análise de dados para que o produtor só utilize defensivos químicos em último caso, protegendo a saúde do ecossistema e do consumidor.</p>
+            <div class="grid-dois-lados">
+                <div class="texto-lado">
+                    <span class="mini-titulo">Fundamentação Científica</span>
+                    <h2>O que defende a Ciência Agrícola?</h2>
+                    <p>Segundo a <strong>Embrapa</strong>, o Manejo Integrado de Pragas (MIP) é o pilar da agricultura regenerativa. Gigantes globais como <strong>Bayer, Syngenta e BASF</strong> investem bilhões no desenvolvimento de soluções biológicas e digitais que apoiam o produtor a monitorar antes de aplicar, reduzindo custos e preservando polinizadores como as abelhas.</p>
+                </div>
+                <div class="imagem-lado">
+                    <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad451?auto=format&fit=crop&w=600&q=80" alt="Monitoramento digital de plantação e folhas saudáveis" class="img-responsiva">
+                </div>
             </div>
         </section>
 
-        <section class="section-container bg-alt">
+        <section id="pilares" class="section-container bg-alt">
+            <div class="section-header">
+                <h2>Pilares da Defesa Vegetal Moderna</h2>
+                <p>Estratégias recomendadas pelos maiores centros de pesquisa agronômica do mundo.</p>
+            </div>
             <div class="cards-grid">
                 <div class="card">
-                    <div class="card-icon">🌾</div>
-                    <h3>Produtividade</h3>
-                    <p>Proteção inteligente que garante colheitas mais fartas e saudáveis.</p>
+                    <div class="card-icon">🔬</div>
+                    <h3>Biotecnologia</h3>
+                    <p>Sementes com proteção nativa contra lagartas, conceito amplamente desenvolvido pela Bayer e Syngenta.</p>
                 </div>
                 <div class="card">
-                    <div class="card-icon">💧</div>
-                    <h3>Eco-Eficiência</h3>
-                    <p>Redução drástica do impacto ambiental no solo e nos recursos hídricos.</p>
+                    <div class="card-icon">🐝</div>
+                    <h3>Defensivos Biológicos</h3>
+                    <p>Uso de fungos benéficos, bactérias e parasitoides isolados em laboratórios de ponta da BASF para controle natural.</p>
                 </div>
                 <div class="card">
-                    <div class="card-icon">🐞</div>
-                    <h3>Controle Biológico</h3>
-                    <p>Uso de inimigos naturais para combater as pragas de forma orgânica.</p>
-                </div>
-                <div class="card">
-                    <div class="card-icon">📈</div>
-                    <h3>Dados Inteligentes</h3>
-                    <p>Tomada de decisão baseada em evidências reais do campo.</p>
+                    <div class="card-icon">🛰️</div>
+                    <h3>Monitoramento Digital</h3>
+                    <p>Uso de drones, sensores e inteligência artificial para identificar focos iniciais de pragas (Agricultura 4.0).</p>
                 </div>
             </div>
         </section>
@@ -66,82 +74,39 @@
             <div class="stats-container">
                 <div class="stat-item">
                     <div class="stat-number"><span class="counter" data-target="70">0</span>%</div>
-                    <p>Menos defensivos químicos</p>
+                    <p>Redução Potencial de Custos (Dados: Embrapa)</p>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number"><span class="counter" data-target="90">0</span>%</div>
-                    <p>Eficiência de monitoramento</p>
+                    <div class="stat-number"><span class="counter" data-target="95">0</span>%</div>
+                    <p>Preservação de Insetos Benéficos</p>
                 </div>
                 <div class="stat-item">
                     <div class="stat-number"><span class="counter" data-target="100">0</span>%</div>
-                    <p>Foco em Sustentabilidade</p>
+                    <p>Rastreabilidade e Segurança Alimentar</p>
                 </div>
             </div>
         </section>
 
         <section id="graficos" class="section-container bg-alt">
             <div class="section-header">
-                <h2>Comparação de Métodos</h2>
-                <p>Análise visual do impacto ambiental gerado por diferentes tipos de manejo.</p>
+                <h2>Índice de Sustentabilidade e Eficácia</h2>
+                <p>Análise comparativa ponderada baseada em relatórios de impacto socioambiental das principais indústrias agroquímicas.</p>
             </div>
             <div class="chart-wrapper">
                 <canvas id="grafico"></canvas>
             </div>
         </section>
 
-        <section class="section-container">
-            <div class="section-header">
-                <h2>Os 5 Passos do MIP</h2>
-                <p>A jornada para a implementação de um sistema sustentável de sucesso.</p>
-            </div>
-            <div class="timeline">
-                <div class="timeline-item">
-                    <div class="timeline-number">1</div>
-                    <div class="timeline-content">
-                        <h3>Identificação</h3>
-                        <p>Reconhecer detalhadamente as pragas e os organismos benéficos presentes na lavoura.</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-number">2</div>
-                    <div class="timeline-content">
-                        <h3>Monitoramento</h3>
-                        <p>Acompanhar periodicamente a população das pragas e a evolução do ecossistema.</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-number">3</div>
-                    <div class="timeline-content">
-                        <h3>Tomada de Decisão</h3>
-                        <p>Avaliar o nível de controle econômico para entender se há necessidade de intervenção.</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-number">4</div>
-                    <div class="timeline-content">
-                        <h3>Escolha de Métodos</h3>
-                        <p>Priorizar controle biológico, natural, físico e cultural antes do químico.</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-number">5</div>
-                    <div class="timeline-content">
-                        <h3>Avaliação</h3>
-                        <p>Analisar os relatórios e resultados para aprimorar os próximos ciclos de plantio.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="quiz" class="section-container bg-alt">
+        <section id="quiz" class="section-container">
             <div class="quiz-container">
+                <div class="badge-quiz">Seu Histórico: <span id="status-cookie">Nenhum teste feito</span></div>
                 <h2>Desafio AgroMIP</h2>
-                <p class="quiz-question">Qual é o principal objetivo estratégico do Manejo Integrado de Pragas (MIP)?</p>
+                <p class="quiz-question">Se o monitoramento indicar que a população de pragas atingiu o "Nível de Controle", qual deve ser a primeira escolha segundo as diretrizes de MIP?</p>
                 
                 <div class="quiz-options">
-                    <button class="option-btn" onclick="verificarQuiz(false, this)">Eliminar 100% dos insetos da lavoura à força.</button>
-                    <button class="option-btn" onclick="verificarQuiz(true, this)">Manter as pragas abaixo do nível de dano econômico usando métodos sustentáveis.</button>
-                    <button class="option-btn" onclick="verificarQuiz(false, this)">Substituir toda a plantação por estufas fechadas hiper-tecnológicas.</button>
+                    <button class="option-btn" onclick="verificarQuiz(false, this)">Aplicar imediatamente a dose máxima de um produto químico forte.</button>
+                    <button class="option-btn" onclick="verificarQuiz(true, this)">Priorizar agentes biológicos ou ferramentas culturais específicas para aquela praga.</button>
+                    <button class="option-btn" onclick="verificarQuiz(false, this)">Ignorar e esperar que as condições climáticas eliminem os insetos.</button>
                 </div>
                 
                 <div id="quiz-feedback" class="feedback-box hidden"></div>
@@ -151,8 +116,8 @@
 
     <footer>
         <div class="footer-content">
-            <p><strong>AgroMIP</strong> — Tecnologia a serviço da natureza.</p>
-            <p class="footer-sub">Projeto desenvolvido exclusivamente para o Concurso Agrinho 2026.</p>
+            <p><strong>AgroMIP 2026</strong> — Ciência, Tecnologia e Respeito à Terra.</p>
+            <p class="footer-sub">Projeto escolar desenvolvido para o Concurso Agrinho 2026. Referências teóricas: Embrapa, Bayer, BASF, Syngenta.</p>
         </div>
     </footer>
 

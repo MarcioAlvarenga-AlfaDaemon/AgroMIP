@@ -1,101 +1,151 @@
-// --- 1. EFEITO DOS CONTADORES INTELIGENTES (Apenas rodam ao rolar a tela) ---
-const iniciarContadores = () => {
-    const counters = document.querySelectorAll('.counter');
-    
-    counters.forEach(counter => {
-        const target = +counter.getAttribute('data-target');
-        let count = 0;
-        const speed = target / 80; // Controla a velocidade uniforme
+// ==========================================
+// 1. SISTEMA DE COOKIES (Focado na LGPD e Memória do Quiz)
+// ==========================================
 
-        const updateCount = () => {
-            if (count < target) {
-                count += speed;
-                counter.innerText = Math.ceil(count);
-                setTimeout(updateCount, 20);
+// Função básica para salvar um cookie
+function definirCookie(nome, valor, dias) {
+    const data = new Date();
+    data.setTime(data.getTime() + (dias * 24 * 60 * 60 * 1000));
+    const expira = "expires=" + data.toUTCString();
+    document.cookie = nome + "=" + valor + ";" + expira + ";path=/;SameSite=Strict";
+}
+
+// Função básica para ler um cookie
+function obterCookie(nome) {
+    const cNome = nome + "=";
+    const cookiesDecodificados = decodeURIComponent(document.cookie);
+    const listaCookies = cookiesDecodificados.split(';');
+    for(let i = 0; i < listaCookies.length; i++) {
+        let c = listaCookies[i].trim();
+        if (c.indexOf(cNome) == 0) {
+            return c.substring(cNome.length, c.length);
+        }
+    }
+    return "";
+}
+
+// Gerencia a exibição do Banner de Cookies
+window.addEventListener('DOMContentLoaded', () => {
+    const consentimento = obterCookie("cookies_aceitos");
+    if (!consentimento) {
+        document.getElementById('cookie-banner').classList.remove('hidden');
+    }
+    
+    // Atualiza o painel do quiz com base no cookie histórico guardado
+    const historicoQuiz = obterCookie("resultado_quiz_mip");
+    if (historicoQuiz) {
+        document.getElementById('status-cookie').innerText = historicoQuiz;
+    }
+});
+
+function aceitarCookies() {
+    definirCookie("cookies_aceitos", "verdadeiro", 30);
+    document.getElementById('cookie-banner').classList.add('hidden');
+}
+
+
+// ==========================================
+// 2. CONTADORES DINÂMICOS COM INTERSECTION OBSERVER
+// ==========================================
+const rodarAnimacaoContadores = () => {
+    const elementosContadores = document.querySelectorAll('.counter');
+    
+    elementosContadores.forEach(contador => {
+        const limite = +contador.getAttribute('data-target');
+        let valorAtual = 0;
+        const incremento = limite / 60; // Suavidade da subida
+
+        const atualizarContagem = () => {
+            if (valorAtual < limite) {
+                valorAtual += incremento;
+                contador.innerText = Math.ceil(valorAtual);
+                setTimeout(atualizarContagem, 25);
             } else {
-                counter.innerText = target;
+                contador.innerText = limite;
             }
         };
-        updateCount();
+        atualizarContagem();
     });
 };
 
-// Intersection Observer para detectar quando o usuário chega na seção dos números
-const statsSection = document.querySelector('.stats-container');
-const observer = new IntersectionObserver((entries) => {
-    if(entries[0].isIntersecting) {
-        iniciarContadores();
-        observer.disconnect(); // Roda a animação apenas uma vez
+const painelEstatisticas = document.querySelector('.stats-container');
+const observadorPainel = new IntersectionObserver((entradas) => {
+    if(entradas[0].isIntersecting) {
+        rodarAnimacaoContadores();
+        observadorPainel.disconnect(); // Evita reativar ao rolar novamente
     }
-}, { threshold: 0.5 });
+}, { threshold: 0.3 });
 
-observer.observe(statsSection);
+observadorPainel.observe(painelEstatisticas);
 
 
-// --- 2. CONFIGURAÇÃO AVANÇADA DO GRÁFICO (CHART.JS) ---
-const ctx = document.getElementById('grafico').getContext('2d');
-new Chart(ctx, {
+// ==========================================
+// 3. GRÁFICO CIENTÍFICO (MÉTRICAS INSPIRADAS EM EMBRAPA/BAYER)
+// ==========================================
+const localGrafico = document.getElementById('grafico').getContext('2d');
+new Chart(localGrafico, {
     type: 'bar',
     data: {
-        labels: ['Controle Químico Tradicional', 'Controle Biológico Isolado', 'Metodologia AgroMIP'],
-        datasets: [{
-            label: 'Grau de Impacto Ambiental (Menor é melhor)',
-            data: [92, 35, 12],
-            backgroundColor: [
-                'rgba(217, 83, 79, 0.85)',  // Vermelho para químico
-                'rgba(91, 179, 24, 0.6)',   // Verde médio para biológico
-                'rgba(27, 77, 62, 0.9)'     // Verde escuro premium para o MIP
-            ],
-            borderColor: [
-                '#d9534f',
-                '#5bb318',
-                '#1b4d3e'
-            ],
-            borderWidth: 2,
-            borderRadius: 8
-        }]
+        labels: ['Químico Calendarizado (Antigo)', 'Manejo Biológico Isolado', 'AgroMIP Tecnológico (Atual)'],
+        datasets: [
+            {
+                label: 'Custo Operacional Financeiro (R$ / ha)',
+                data: [85, 60, 42],
+                backgroundColor: 'rgba(217, 83, 79, 0.75)',
+                borderColor: '#d9534f',
+                borderWidth: 2,
+                borderRadius: 6
+            },
+            {
+                label: 'Preservação da Biodiversidade (%)',
+                data: [15, 85, 95],
+                backgroundColor: 'rgba(91, 179, 24, 0.85)',
+                borderColor: '#2b7a0b',
+                borderWidth: 2,
+                borderRadius: 6
+            }
+        ]
     },
     options: {
         responsive: true,
         plugins: {
-            legend: {
-                display: true,
-                labels: { font: { family: 'sans-serif', size: 13, weight: 'bold' } }
-            }
+            legend: { position: 'top', labels: { font: { weight: '600' } } }
         },
         scales: {
-            y: {
-                beginAtZero: true,
-                max: 100,
-                grid: { display: false }
-            },
-            x: {
-                grid: { display: false }
-            }
+            y: { beginAtZero: true, max: 100 }
         }
     }
 });
 
 
-// --- 3. SISTEMA DE QUIZ INTERATIVO E GAMIFICADO ---
-function verificarQuiz(eCorreto, elementoClicado) {
-    // Desabilita todos os botões para o usuário não clicar de novo
-    const botoes = document.querySelectorAll('.option-btn');
-    botoes.forEach(btn => btn.disabled = true);
+// ==========================================
+// 4. QUIZ GAMIFICADO COM MEMÓRIA DE COOKIE
+// ==========================================
+function verificarQuiz(acertou, botaoClicado) {
+    const todasOpcoes = document.querySelectorAll('.option-btn');
+    todasOpcoes.forEach(btn => btn.disabled = true); // Bloqueia novos cliques
 
-    const feedback = document.getElementById('quiz-feedback');
-    feedback.classList.remove('hidden');
+    const painelFeedback = document.getElementById('quiz-feedback');
+    painelFeedback.classList.remove('hidden');
 
-    if (eCorreto) {
-        elementoClicado.classList.add('correct');
-        feedback.className = "feedback-box success";
-        feedback.innerHTML = "🎉 <strong>Parabéns, resposta exata!</strong> O foco do MIP é o equilíbrio ecológico e financeiro, controlando as pragas de forma inteligente sem agredir a biodiversidade.";
-    } else {
-        elementoClicado.classList.add('wrong');
-        feedback.className = "feedback-box error";
-        feedback.innerHTML = "❌ <strong>Quase lá!</strong> A resposta correta seria a segunda opção. O MIP não busca erradicar os insetos por completo, mas sim mantê-los sob controle de forma segura e econômica.";
+    if (acertou) {
+        botaoClicado.classList.add('correct');
+        painelFeedback.className = "feedback-box success";
+        painelFeedback.innerHTML = "🎯 <strong>Exatamente!</strong> As pesquisas da Syngenta e da BASF comprovam que tratamentos químicos só devem entrar em cena quando o nível de dano econômico é iminente. Antes disso, ferramentas biológicas e culturais dão conta com menor custo ambiental.";
         
-        // Destaca a alternativa correta mesmo se ele errou
-        botoes[1].classList.add('correct');
+        // Salva o acerto nos Cookies do navegador por 7 dias
+        definirCookie("resultado_quiz_mip", "Aprovado (100% de Acertos)", 7);
+        document.getElementById('status-cookie').innerText = "Aprovado (100% de Acertos)";
+    } else {
+        botaoClicado.classList.add('wrong');
+        painelFeedback.className = "feedback-box error";
+        painelFeedback.innerHTML = "⚠️ <strong>Incorreto.</strong> A alternativa correta é a segunda. O MIP prega o equilíbrio: produtos químicos de amplo espectro aplicados preventivamente geram resistência nas pragas e matam inimigos naturais.";
+        
+        // Destaca visualmente qual era o botão certo
+        todasOpcoes[1].classList.add('correct');
+        
+        // Salva o erro nos Cookies por 7 dias
+        definirCookie("resultado_quiz_mip", "Necessita Revisão", 7);
+        document.getElementById('status-cookie').innerText = "Necessita Revisão";
     }
 }
