@@ -1,89 +1,77 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#2b7a0b" />
-  <title>Agrinho — Projeto AgroMIP</title>
-  <meta name="description" content="Site do Agrinho — atividades educativas e informações agrícolas." />
-  <!-- Open Graph -->
-  <meta property="og:title" content="Agrinho — Projeto AgroMIP" />
-  <meta property="og:description" content="Atividades educativas e informações sobre agricultura para crianças." />
-  <meta property="og:type" content="website" />
-  <!-- Preconnect / Preload -->
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Example font preload -->
-  <link rel="preload" as="style" href="styles.css">
-  <link rel="stylesheet" href="styles.css">
-  <script defer src="script.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroMIP | Agrinho 2026</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#main">Pular para o conteúdo</a>
 
-  <header class="site-header" role="banner">
-    <div class="container">
-      <a class="logo" href="/" aria-label="Agrinho — Página inicial">Agrinho</a>
-      <button id="navToggle" class="nav-toggle" aria-expanded="false" aria-controls="site-nav">
-        <span class="sr-only">Abrir navegação</span>
-        ☰
-      </button>
-      <nav id="site-nav" class="site-nav" role="navigation">
-        <ul>
-          <li><a href="#sobre">Sobre</a></li>
-          <li><a href="#atividades">Atividades</a></li>
-          <li><a href="#contato">Contato</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
+<header class="hero">
+<nav>
+<h1>🌱 AgroMIP</h1>
+<a href="#quiz">Quiz</a>
+</nav>
+<div class="hero-content">
+<h2>Tecnologia e Sustentabilidade no Campo</h2>
+<p>Projeto Agrinho 2026 sobre Manejo Integrado de Pragas.</p>
+<a class="btn" href="#sobre">Conhecer</a>
+</div>
+</header>
 
-  <main id="main" class="site-main" role="main">
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="container">
-        <h1 id="hero-title">Agrinho — Aprender brincando sobre a agricultura</h1>
-        <p>Projetos educativos para escolas e comunidades.</p>
-        <a class="btn" href="#atividades">Ver atividades</a>
-      </div>
-    </section>
+<section id="sobre">
+<h2>O que é o MIP?</h2>
+<p>O Manejo Integrado de Pragas utiliza monitoramento, prevenção, controle biológico e tomada de decisão baseada em dados.</p>
+</section>
 
-    <section id="sobre" class="content container">
-      <h2>Sobre o projeto</h2>
-      <p>Texto explicativo sobre missão e público-alvo.</p>
-    </section>
+<section>
+<h2>Benefícios</h2>
+<div class="cards">
+<div class="card">🌾 Maior produtividade</div>
+<div class="card">💧 Menor impacto ambiental</div>
+<div class="card">🐞 Controle biológico</div>
+<div class="card">📈 Decisões inteligentes</div>
+</div>
+</section>
 
-    <section id="atividades" class="content container">
-      <h2>Atividades</h2>
-      <!-- Cards responsivos -->
-      <div class="grid">
-        <article class="card" aria-labelledby="card1-title">
-          <img src="img/atividade1.webp" alt="Crianças plantando sementes">
-          <h3 id="card1-title">Plantio</h3>
-          <p>Descrição curta da atividade.</p>
-        </article>
-        <article class="card" aria-labelledby="card2-title">
-          <img src="img/atividade2.webp" alt="Oficina de educação ambiental">
-          <h3 id="card2-title">Oficina</h3>
-          <p>Descrição curta da atividade.</p>
-        </article>
-      </div>
-    </section>
+<section>
+<h2>Indicadores</h2>
+<div class="stats">
+<div><span class="counter" data-target="70">0</span><p>Redução de defensivos</p></div>
+<div><span class="counter" data-target="90">0</span><p>Eficiência do monitoramento</p></div>
+<div><span class="counter" data-target="100">0</span><p>Foco em sustentabilidade</p></div>
+</div>
+</section>
 
-    <section id="contato" class="container content">
-      <h2>Contato</h2>
-      <form action="/envio" method="post" class="contact-form" novalidate>
-        <label for="nome">Nome</label>
-        <input id="nome" name="nome" type="text" required>
-        <label for="email">E-mail</label>
-        <input id="email" name="email" type="email" required>
-        <button class="btn" type="submit">Enviar</button>
-      </form>
-    </section>
-  </main>
+<section>
+<h2>Comparação de Métodos</h2>
+<canvas id="grafico"></canvas>
+</section>
 
-  <footer class="site-footer" role="contentinfo">
-    <div class="container">
-      <p>© Agrinho — Projeto AgroMIP</p>
-    </div>
-  </footer>
+<section>
+<h2>Linha do Tempo do MIP</h2>
+<ol class="timeline">
+<li>Identificação da praga</li>
+<li>Monitoramento da lavoura</li>
+<li>Análise do nível de dano</li>
+<li>Escolha do método de controle</li>
+<li>Avaliação dos resultados</li>
+</ol>
+</section>
+
+<section id="quiz">
+<h2>Quiz Interativo</h2>
+<p>Qual é o principal objetivo do MIP?</p>
+<button onclick="responder()">Ver resposta</button>
+<p id="resultado"></p>
+</section>
+
+<footer>
+<p>Projeto desenvolvido para o Agrinho 2026 • AgroMIP</p>
+</footer>
+
+<script src="script.js"></script>
 </body>
 </html>
