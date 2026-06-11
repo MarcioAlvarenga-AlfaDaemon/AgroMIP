@@ -1,77 +1,161 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AgroMIP | Agrinho 2026</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroMIP | Agrinho 2026</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-<header class="hero">
-<nav>
-<h1>🌱 AgroMIP</h1>
-<a href="#quiz">Quiz</a>
-</nav>
-<div class="hero-content">
-<h2>Tecnologia e Sustentabilidade no Campo</h2>
-<p>Projeto Agrinho 2026 sobre Manejo Integrado de Pragas.</p>
-<a class="btn" href="#sobre">Conhecer</a>
-</div>
-</header>
+    <header class="hero">
+        <nav class="navbar">
+            <div class="logo">🌱 AgroMIP</div>
+            <ul class="nav-links">
+                <li><a href="#sobre">Sobre</a></li>
+                <li><a href="#graficos">Dados</a></li>
+                <li><a href="#quiz" class="btn-nav">Fazer Quiz</a></li>
+            </ul>
+        </nav>
+        <div class="hero-content">
+            <span class="badge">Agrinho 2026</span>
+            <h2>Tecnologia e Sustentabilidade no Campo</h2>
+            <p>Inovação através do Manejo Integrado de Pragas para um futuro agrícola consciente.</p>
+            <a class="btn-primary" href="#sobre">Explorar Projeto</a>
+        </div>
+    </header>
 
-<section id="sobre">
-<h2>O que é o MIP?</h2>
-<p>O Manejo Integrado de Pragas utiliza monitoramento, prevenção, controle biológico e tomada de decisão baseada em dados.</p>
-</section>
+    <main>
+        <section id="sobre" class="section-container">
+            <div class="section-header">
+                <h2>O que é o MIP?</h2>
+                <p>Uma abordagem estratégica que une tecnologia, biologia e preservação ambiental.</p>
+            </div>
+            <div class="sobre-content">
+                <p>O <strong>Manejo Integrado de Pragas (MIP)</strong> não é apenas uma técnica, é uma filosofia de cultivo. Ele integra o monitoramento constante da lavoura, a prevenção biológica e a análise de dados para que o produtor só utilize defensivos químicos em último caso, protegendo a saúde do ecossistema e do consumidor.</p>
+            </div>
+        </section>
 
-<section>
-<h2>Benefícios</h2>
-<div class="cards">
-<div class="card">🌾 Maior produtividade</div>
-<div class="card">💧 Menor impacto ambiental</div>
-<div class="card">🐞 Controle biológico</div>
-<div class="card">📈 Decisões inteligentes</div>
-</div>
-</section>
+        <section class="section-container bg-alt">
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">🌾</div>
+                    <h3>Produtividade</h3>
+                    <p>Proteção inteligente que garante colheitas mais fartas e saudáveis.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">💧</div>
+                    <h3>Eco-Eficiência</h3>
+                    <p>Redução drástica do impacto ambiental no solo e nos recursos hídricos.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🐞</div>
+                    <h3>Controle Biológico</h3>
+                    <p>Uso de inimigos naturais para combater as pragas de forma orgânica.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📈</div>
+                    <h3>Dados Inteligentes</h3>
+                    <p>Tomada de decisão baseada em evidências reais do campo.</p>
+                </div>
+            </div>
+        </section>
 
-<section>
-<h2>Indicadores</h2>
-<div class="stats">
-<div><span class="counter" data-target="70">0</span><p>Redução de defensivos</p></div>
-<div><span class="counter" data-target="90">0</span><p>Eficiência do monitoramento</p></div>
-<div><span class="counter" data-target="100">0</span><p>Foco em sustentabilidade</p></div>
-</div>
-</section>
+        <section class="section-container">
+            <div class="stats-container">
+                <div class="stat-item">
+                    <div class="stat-number"><span class="counter" data-target="70">0</span>%</div>
+                    <p>Menos defensivos químicos</p>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number"><span class="counter" data-target="90">0</span>%</div>
+                    <p>Eficiência de monitoramento</p>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number"><span class="counter" data-target="100">0</span>%</div>
+                    <p>Foco em Sustentabilidade</p>
+                </div>
+            </div>
+        </section>
 
-<section>
-<h2>Comparação de Métodos</h2>
-<canvas id="grafico"></canvas>
-</section>
+        <section id="graficos" class="section-container bg-alt">
+            <div class="section-header">
+                <h2>Comparação de Métodos</h2>
+                <p>Análise visual do impacto ambiental gerado por diferentes tipos de manejo.</p>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="grafico"></canvas>
+            </div>
+        </section>
 
-<section>
-<h2>Linha do Tempo do MIP</h2>
-<ol class="timeline">
-<li>Identificação da praga</li>
-<li>Monitoramento da lavoura</li>
-<li>Análise do nível de dano</li>
-<li>Escolha do método de controle</li>
-<li>Avaliação dos resultados</li>
-</ol>
-</section>
+        <section class="section-container">
+            <div class="section-header">
+                <h2>Os 5 Passos do MIP</h2>
+                <p>A jornada para a implementação de um sistema sustentável de sucesso.</p>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-number">1</div>
+                    <div class="timeline-content">
+                        <h3>Identificação</h3>
+                        <p>Reconhecer detalhadamente as pragas e os organismos benéficos presentes na lavoura.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">2</div>
+                    <div class="timeline-content">
+                        <h3>Monitoramento</h3>
+                        <p>Acompanhar periodicamente a população das pragas e a evolução do ecossistema.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">3</div>
+                    <div class="timeline-content">
+                        <h3>Tomada de Decisão</h3>
+                        <p>Avaliar o nível de controle econômico para entender se há necessidade de intervenção.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">4</div>
+                    <div class="timeline-content">
+                        <h3>Escolha de Métodos</h3>
+                        <p>Priorizar controle biológico, natural, físico e cultural antes do químico.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">5</div>
+                    <div class="timeline-content">
+                        <h3>Avaliação</h3>
+                        <p>Analisar os relatórios e resultados para aprimorar os próximos ciclos de plantio.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<section id="quiz">
-<h2>Quiz Interativo</h2>
-<p>Qual é o principal objetivo do MIP?</p>
-<button onclick="responder()">Ver resposta</button>
-<p id="resultado"></p>
-</section>
+        <section id="quiz" class="section-container bg-alt">
+            <div class="quiz-container">
+                <h2>Desafio AgroMIP</h2>
+                <p class="quiz-question">Qual é o principal objetivo estratégico do Manejo Integrado de Pragas (MIP)?</p>
+                
+                <div class="quiz-options">
+                    <button class="option-btn" onclick="verificarQuiz(false, this)">Eliminar 100% dos insetos da lavoura à força.</button>
+                    <button class="option-btn" onclick="verificarQuiz(true, this)">Manter as pragas abaixo do nível de dano econômico usando métodos sustentáveis.</button>
+                    <button class="option-btn" onclick="verificarQuiz(false, this)">Substituir toda a plantação por estufas fechadas hiper-tecnológicas.</button>
+                </div>
+                
+                <div id="quiz-feedback" class="feedback-box hidden"></div>
+            </div>
+        </section>
+    </main>
 
-<footer>
-<p>Projeto desenvolvido para o Agrinho 2026 • AgroMIP</p>
-</footer>
+    <footer>
+        <div class="footer-content">
+            <p><strong>AgroMIP</strong> — Tecnologia a serviço da natureza.</p>
+            <p class="footer-sub">Projeto desenvolvido exclusivamente para o Concurso Agrinho 2026.</p>
+        </div>
+    </footer>
 
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
