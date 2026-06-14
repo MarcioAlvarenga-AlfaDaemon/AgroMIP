@@ -1,587 +1,1015 @@
-// ============================================================
-// SCRIPT.JS — AgroMIP 2026
-// Autor: AgroMIP
-// Descrição: Lógica principal do site, incluindo navegação,
-// quiz gamificado, contadores, gráfico e interações do DOM.
-// ============================================================
+/* ═══════════════════════════════════════════════════════════
+   AgroMIP — script.js
+   Autor: AgroMIP · Agrinho 2026
+   Descrição: JavaScript principal do site AgroMIP
+   Seções:
+     1.  Splash Screen
+     2.  Tema (Modo Escuro / Claro) + Cookies
+     3.  Navbar (scroll, menu mobile, link ativo)
+     4.  Animações por scroll (Intersection Observer)
+     5.  Contadores animados
+     6.  Galeria (filtros + lightbox)
+     7.  Quiz interativo
+     8.  Formulário de contato (validação JS)
+     9.  Newsletter (validação JS)
+    10.  Sistema de Login / Conta (localStorage)
+    11.  Botão voltar ao topo
+    12.  Cookies de sessão / preferências
+    13.  Inicialização geral
+════════════════════════════════════════════════════════════ */
 
-// ── 1. UTILITÁRIOS DE COOKIE (LGPD) ──────────────────────
+'use strict';
+
+/* ─────────────────────────────────────────────────────────
+   UTILITÁRIOS GLOBAIS
+───────────────────────────────────────────────────────── */
 
 /**
- * Salva um cookie no navegador
- * @param {string} nome - Nome do cookie
- * @param {string} valor - Valor a salvar
- * @param {number} dias - Dias até expirar
+ * Atalho para document.querySelector
+ * @param {string} sel - seletor CSS
+ * @param {Element} [ctx=document] - contexto de busca
+ * @returns {Element|null}
  */
-function definirCookie(nome, valor, dias) {
-  const data = new Date();
-  data.setTime(data.getTime() + dias * 24 * 60 * 60 * 1000);
-  document.cookie = `${nome}=${valor};expires=${data.toUTCString()};path=/;SameSite=Strict`;
+const $ = (sel, ctx = document) => ctx.querySelector(sel);
+
+/**
+ * Atalho para document.querySelectorAll (retorna Array)
+ * @param {string} sel - seletor CSS
+ * @param {Element} [ctx=document] - contexto de busca
+ * @returns {Element[]}
+ */
+const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+
+/**
+ * Adiciona classe 'visible' a um elemento (usado com Intersection Observer)
+ * @param {Element} el
+ */
+const revealEl = (el) => el.classList.add('visible');
+
+
+/* ═══════════════════════════════════════════════════════════
+   1. SPLASH SCREEN
+   Exibe animação de entrada e some após carregamento
+════════════════════════════════════════════════════════════ */
+(function initSplash() {
+  const splash   = $('#splash');
+  const progress = $('#splash-progress');
+
+  if (!splash || !progress) return;
+
+  let pct = 0; // porcentagem atual da barra
+
+  // Avança a barra de progresso a cada 30ms
+  const interval = setInterval(() => {
+    pct += Math.random() * 12 + 4; // incremento aleatório entre 4–16%
+
+    if (pct >= 100) {
+      pct = 100;
+      clearInterval(interval);
+
+      // Aguarda 400ms na barra cheia e some
+      setTimeout(() => {
+        splash.classList.add('hidden');
+
+        // Remove do DOM após transição para não bloquear foco
+        splash.addEventListener('transitionend', () => splash.remove(), { once: true });
+      }, 400);
+    }
+
+    progress.style.width = pct + '%';
+  }, 30);
+})();
+
+
+/* ═══════════════════════════════════════════════════════════
+   2. TEMA — MODO ESCURO / CLARO + COOKIES
+   Lembra preferência do usuário via cookie
+════════════════════════════════════════════════════════════ */
+
+/* -- Funções auxiliares de Cookie -- */
+
+/**
+ * Define um cookie com validade em dias
+ * @param {string} name
+ * @param {string} value
+ * @param {number} days
+ */
+function setCookie(name, value, days = 365) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires};path=/;SameSite=Lax`;
 }
 
 /**
  * Lê um cookie pelo nome
- * @param {string} nome - Nome do cookie
- * @returns {string} Valor do cookie ou string vazia
+ * @param {string} name
+ * @returns {string|null}
  */
-function obterCookie(nome) {
-  const chave = nome + "=";
-  const cookies = decodeURIComponent(document.cookie).split(";");
-  for (let cookie of cookies) {
-    cookie = cookie.trim();
-    if (cookie.startsWith(chave)) {
-      return cookie.substring(chave.length);
-    }
-  }
-  return "";
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+  return match ? decodeURIComponent(match[1]) : null;
 }
 
-// ── 2. INICIALIZAÇÃO DO DOM ───────────────────────────────
-
-window.addEventListener("DOMContentLoaded", () => {
-  inicializarCookieBanner();
-  inicializarNavbar();
-  inicializarMenuMobile();
-  inicializarTema();
-  inicializarContadores();
-  inicializarGrafico();
-  inicializarAccordion();
-  inicializarAnimacoesEntrada();
-  inicializarQuiz();
-  saudarUsuario();
-});
-
-// ── 3. BANNER DE COOKIES ──────────────────────────────────
-
-function inicializarCookieBanner() {
-  const banner = document.getElementById("cookie-banner");
-  const consentimento = obterCookie("agrinho_cookies");
-
-  // Mostra o banner apenas se o usuário ainda não aceitou
-  if (!consentimento) {
-    banner.classList.remove("oculto");
-  }
-
-  // Atualiza o badge do quiz com histórico salvo em cookie
-  const historico = obterCookie("agrinho_quiz_historico");
-  const elHistorico = document.getElementById("status-cookie");
-  if (historico && elHistorico) {
-    elHistorico.textContent = historico;
-  }
+/**
+ * Remove um cookie
+ * @param {string} name
+ */
+function deleteCookie(name) {
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
 }
 
-// Função global chamada pelo botão do banner
-function aceitarCookies() {
-  definirCookie("agrinho_cookies", "aceito", 180);
-  const banner = document.getElementById("cookie-banner");
-  banner.classList.add("oculto");
-}
+/* -- Inicialização do tema -- */
+(function initTheme() {
+  const toggleBtn = $('#theme-toggle');
+  const themeIcon = $('#theme-icon');
+  const body      = document.body;
 
-// ── 4. NAVBAR COM SCROLL ──────────────────────────────────
+  if (!toggleBtn) return;
 
-function inicializarNavbar() {
-  const navbar = document.getElementById("navbar");
+  // Lê preferência salva em cookie (ou usa prefers-color-scheme)
+  const savedTheme = getCookie('agromip_theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = savedTheme ? savedTheme === 'dark' : prefersDark;
 
-  // Adiciona classe 'scrolled' quando o usuário rola a página
-  window.addEventListener("scroll", () => {
-    if (window.scrollY > 60) {
-      navbar.classList.add("scrolled");
-    } else {
-      navbar.classList.remove("scrolled");
-    }
+  // Aplica o tema inicial sem transição
+  body.classList.toggle('dark-mode', isDark);
+  themeIcon.textContent = isDark ? '☀️' : '🌙';
+
+  // Alterna o tema ao clicar
+  toggleBtn.addEventListener('click', () => {
+    const nowDark = body.classList.toggle('dark-mode');
+    themeIcon.textContent = nowDark ? '☀️' : '🌙';
+    setCookie('agromip_theme', nowDark ? 'dark' : 'light');
   });
-}
+})();
 
-// ── 5. MENU MOBILE (HAMBURGUER) ───────────────────────────
 
-function inicializarMenuMobile() {
-  const btnMenu = document.getElementById("btn-menu");
-  const navLinks = document.getElementById("nav-links");
+/* ═══════════════════════════════════════════════════════════
+   3. NAVBAR
+   Scroll shadow, menu mobile e marcação de link ativo
+════════════════════════════════════════════════════════════ */
+(function initNavbar() {
+  const navbar     = $('#navbar');
+  const menuToggle = $('#menu-toggle');
+  const navLinks   = $('#nav-links');
+  const links      = $$('a', navLinks);
 
-  if (!btnMenu || !navLinks) return;
+  if (!navbar) return;
 
-  btnMenu.addEventListener("click", () => {
-    // Alterna a classe 'aberto' para mostrar/esconder o menu
-    const estaAberto = navLinks.classList.toggle("aberto");
-    btnMenu.setAttribute("aria-expanded", estaAberto);
-  });
+  /* Sombra ao scrollar */
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 40);
+    updateActiveLink();
+  }, { passive: true });
 
-  // Fecha o menu ao clicar em um link
-  navLinks.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", () => {
-      navLinks.classList.remove("aberto");
-      btnMenu.setAttribute("aria-expanded", false);
+  /* Menu hamburguer (mobile) */
+  if (menuToggle && navLinks) {
+    menuToggle.addEventListener('click', () => {
+      const isOpen = navLinks.classList.toggle('open');
+      menuToggle.classList.toggle('open', isOpen);
+      menuToggle.setAttribute('aria-expanded', isOpen);
     });
-  });
-}
 
-// ── 6. MODO ESCURO ────────────────────────────────────────
-
-function inicializarTema() {
-  const btnTema = document.getElementById("btn-tema");
-  if (!btnTema) return;
-
-  // Verifica preferência salva em cookie
-  const temaSalvo = obterCookie("agrinho_tema");
-  if (temaSalvo === "escuro") {
-    document.body.classList.add("modo-escuro");
-    btnTema.textContent = "☀️ Claro";
-  }
-
-  btnTema.addEventListener("click", () => {
-    const modoEscuroAtivo = document.body.classList.toggle("modo-escuro");
-    // Altera o texto do botão conforme o tema
-    btnTema.textContent = modoEscuroAtivo ? "☀️ Claro" : "🌙 Escuro";
-    definirCookie("agrinho_tema", modoEscuroAtivo ? "escuro" : "claro", 30);
-  });
-}
-
-// ── 7. CONTADORES ANIMADOS (INTERSECTION OBSERVER) ────────
-
-function inicializarContadores() {
-  const elementosContadores = document.querySelectorAll(".counter");
-  if (!elementosContadores.length) return;
-
-  /**
-   * Anima um contador de 0 até o valor alvo
-   * @param {HTMLElement} el - Elemento span do contador
-   */
-  function animarContador(el) {
-    const alvo = parseInt(el.getAttribute("data-target"), 10);
-    let valorAtual = 0;
-    const incremento = alvo / 60; // 60 frames para suavidade
-
-    const atualizar = () => {
-      if (valorAtual < alvo) {
-        valorAtual += incremento;
-        el.textContent = Math.ceil(valorAtual);
-        requestAnimationFrame(atualizar);
-      } else {
-        el.textContent = alvo;
-      }
-    };
-    requestAnimationFrame(atualizar);
-  }
-
-  // Dispara a animação apenas quando a seção entra na tela
-  const observer = new IntersectionObserver(
-    (entradas) => {
-      entradas.forEach((entrada) => {
-        if (entrada.isIntersecting) {
-          elementosContadores.forEach(animarContador);
-          observer.disconnect(); // Evita re-animar ao rolar novamente
-        }
+    // Fecha menu ao clicar em qualquer link
+    links.forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+        menuToggle.classList.remove('open');
+        menuToggle.setAttribute('aria-expanded', 'false');
       });
-    },
-    { threshold: 0.3 }
-  );
+    });
+  }
 
-  const secaoStats = document.querySelector(".stats-container");
-  if (secaoStats) observer.observe(secaoStats);
-}
+  /* Link ativo conforme seção visível */
+  function updateActiveLink() {
+    const sections = $$('section[id]');
+    const scrollY  = window.scrollY + 100;
 
-// ── 8. GRÁFICO COMPARATIVO (CHART.JS) ────────────────────
+    sections.forEach(section => {
+      const top    = section.offsetTop;
+      const height = section.offsetHeight;
+      const id     = section.getAttribute('id');
+      const link   = $(`a[href="#${id}"]`, navLinks);
 
-function inicializarGrafico() {
-  const canvas = document.getElementById("grafico");
-  if (!canvas) return;
-
-  const ctx = canvas.getContext("2d");
-
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: [
-        "Químico Calendarizado (Antigo)",
-        "Biológico Isolado",
-        "MIP Tecnológico (Atual)",
-      ],
-      datasets: [
-        {
-          label: "Custo Operacional (R$/ha, normalizado)",
-          data: [85, 60, 42],
-          backgroundColor: "rgba(217, 83, 79, 0.75)",
-          borderColor: "#d9534f",
-          borderWidth: 2,
-          borderRadius: 8,
-        },
-        {
-          label: "Preservação da Biodiversidade (%)",
-          data: [15, 80, 95],
-          backgroundColor: "rgba(91, 179, 24, 0.8)",
-          borderColor: "#2c7a0b",
-          borderWidth: 2,
-          borderRadius: 8,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: "top",
-          labels: { font: { weight: "600", size: 13 } },
-        },
-        tooltip: {
-          callbacks: {
-            // Personaliza o tooltip do gráfico
-            label: (ctx) => ` ${ctx.dataset.label}: ${ctx.parsed.y}`,
-          },
-        },
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 100,
-          ticks: { font: { size: 12 } },
-        },
-        x: {
-          ticks: { font: { size: 12 } },
-        },
-      },
-    },
-  });
-}
-
-// ── 9. ACCORDION DE PERGUNTAS FREQUENTES ──────────────────
-
-function inicializarAccordion() {
-  const itens = document.querySelectorAll(".accordion-item");
-
-  itens.forEach((item) => {
-    const btn = item.querySelector(".accordion-btn");
-    if (!btn) return;
-
-    btn.addEventListener("click", () => {
-      const estaAberto = item.classList.contains("ativo");
-
-      // Fecha todos os outros itens antes de abrir o clicado
-      itens.forEach((outro) => outro.classList.remove("ativo"));
-
-      // Se o item clicado estava fechado, abre-o
-      if (!estaAberto) {
-        item.classList.add("ativo");
+      if (link) {
+        link.classList.toggle('active', scrollY >= top && scrollY < top + height);
       }
     });
-  });
-}
+  }
 
-// ── 10. ANIMAÇÕES DE ENTRADA (SCROLL) ─────────────────────
+  updateActiveLink();
+})();
 
-function inicializarAnimacoesEntrada() {
-  const elementos = document.querySelectorAll(".animar-entrada");
-  if (!elementos.length) return;
 
+/* ═══════════════════════════════════════════════════════════
+   4. ANIMAÇÕES POR SCROLL (Intersection Observer)
+   Revela elementos com classe .reveal e .pillar-card ao entrar na tela
+════════════════════════════════════════════════════════════ */
+(function initScrollReveal() {
   const observer = new IntersectionObserver(
-    (entradas) => {
-      entradas.forEach((entrada) => {
-        if (entrada.isIntersecting) {
-          entrada.target.classList.add("visivel");
-          observer.unobserve(entrada.target); // Anima apenas uma vez
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target); // para de observar após revelar
         }
       });
     },
     { threshold: 0.15 }
   );
 
-  elementos.forEach((el) => observer.observe(el));
-}
+  // Aplica a elementos com .reveal e .pillar-card
+  $$('.reveal, .pillar-card, .stat-card, .gallery-card, .contact-form-wrap, .newsletter-wrap')
+    .forEach(el => {
+      el.classList.add('reveal');
+      observer.observe(el);
+    });
+})();
 
-// ── 11. SAUDAÇÃO PERSONALIZADA ────────────────────────────
 
-function saudarUsuario() {
-  const elSaudacao = document.getElementById("saudacao-usuario");
-  if (!elSaudacao) return;
+/* ═══════════════════════════════════════════════════════════
+   5. CONTADORES ANIMADOS
+   Anima os números das estatísticas quando entram na tela
+════════════════════════════════════════════════════════════ */
+(function initCounters() {
+  const counters = $$('.stat-number');
+  if (!counters.length) return;
 
-  // Verifica se o nome do usuário está salvo
-  let nomeUsuario = obterCookie("agrinho_usuario_nome");
+  const counterObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
 
-  if (nomeUsuario) {
-    // DOM: atualiza o texto da saudação com o nome salvo
-    elSaudacao.textContent = `Olá, ${nomeUsuario}! Bem-vindo(a) de volta ao AgroMIP.`;
-    elSaudacao.classList.remove("oculto");
-  } else {
-    // Solicita o nome do usuário (apenas na primeira visita)
-    setTimeout(() => {
-      const nome = prompt(
-        "🌱 Bem-vindo(a) ao AgroMIP!\n\nQual é o seu nome? (opcional)"
-      );
-      if (nome && nome.trim()) {
-        nomeUsuario = nome.trim();
-        definirCookie("agrinho_usuario_nome", nomeUsuario, 30);
-        // DOM: insere o nome no elemento de saudação
-        elSaudacao.textContent = `Olá, ${nomeUsuario}! Explore o mundo do MIP.`;
-        elSaudacao.classList.remove("oculto");
-      }
-    }, 1500);
-  }
-}
+        const el      = entry.target;
+        const target  = +el.dataset.target;   // valor final
+        const suffix  = el.dataset.suffix || ''; // ex: "%", "+", " anos"
+        const duration = 1800;  // duração da animação em ms
+        const steps    = 60;    // frames
+        const stepTime = duration / steps;
+        let current    = 0;
 
-// ── 12. QUIZ GAMIFICADO COMPLETO ──────────────────────────
+        const timer = setInterval(() => {
+          current += target / steps;
 
-// Banco de perguntas do quiz
-const perguntasQuiz = [
-  {
-    pergunta:
-      'O que significa a sigla "MIP" no contexto da agricultura?',
-    opcoes: [
-      "Método Intensivo de Pesticidas",
-      "Manejo Integrado de Pragas",
-      "Monitoramento Industrial de Plantas",
-      "Método Integrado de Produção",
-    ],
-    correta: 1,
-    feedback:
-      "Correto! MIP significa Manejo Integrado de Pragas — uma abordagem científica e ecológica que combina diferentes métodos para controlar organismos nocivos à agricultura de forma sustentável.",
-  },
-  {
-    pergunta:
-      "Quando o monitoramento indica que a população de pragas atingiu o 'Nível de Controle', qual deve ser a primeira escolha segundo o MIP?",
-    opcoes: [
-      "Aplicar imediatamente a dose máxima de inseticida químico.",
-      "Priorizar agentes biológicos ou ferramentas culturais específicas para aquela praga.",
-      "Ignorar e esperar que as condições climáticas eliminem os insetos.",
-      "Fazer a colheita antecipada para evitar danos.",
-    ],
-    correta: 1,
-    feedback:
-      "Exato! No MIP, o controle químico é a última opção. Quando o nível de ação econômica é atingido, o correto é priorizar métodos biológicos e culturais antes de recorrer a pesticidas.",
-  },
-  {
-    pergunta:
-      "O que é o 'Nível de Ação Econômica' (NAE) no MIP?",
-    opcoes: [
-      "O preço de mercado dos agrotóxicos.",
-      "O número mínimo de pragas que pode existir na lavoura.",
-      "O ponto em que o dano causado pela praga é maior que o custo do controle.",
-      "O orçamento anual do produtor rural para defensivos.",
-    ],
-    correta: 2,
-    feedback:
-      "Isso mesmo! O NAE é o limiar crítico: quando a população da praga causa prejuízo superior ao custo de controlá-la. Antes disso, é mais econômico e ecológico não intervir.",
-  },
-  {
-    pergunta:
-      "Qual destes é um exemplo de controle BIOLÓGICO de pragas?",
-    opcoes: [
-      "Uso de inseticida à base de organofosforado.",
-      "Rotação de culturas entre as safras.",
-      "Liberação de vespas parasitoides (ex.: Trichogramma) para atacar ovos de pragas.",
-      "Instalação de telas de proteção nas estufas.",
-    ],
-    correta: 2,
-    feedback:
-      "Correto! O controle biológico usa organismos vivos — como vespas parasitoides, joaninhas, fungos entomopatogênicos (Beauveria bassiana) e bactérias (Bacillus thuringiensis) — para combater pragas de forma natural.",
-  },
-  {
-    pergunta:
-      "Por que a ROTAÇÃO DE CULTURAS é considerada uma prática do MIP?",
-    opcoes: [
-      "Aumenta a necessidade de fertilizantes nitrogenados.",
-      "Quebra o ciclo de vida das pragas específicas de cada cultura, reduzindo sua infestação.",
-      "Permite usar o mesmo agrotóxico por mais tempo sem criar resistência.",
-      "Aumenta a compactação do solo, dificultando o acesso de pragas.",
-    ],
-    correta: 1,
-    feedback:
-      "Perfeito! Pragas geralmente são especialistas em poucas culturas. Ao mudar o que se planta em cada área, o ciclo reprodutivo das pragas é interrompido, reduzindo naturalmente sua pressão.",
-  },
-  {
-    pergunta:
-      "Qual é o principal benefício ambiental do MIP em relação ao controle químico convencional?",
-    opcoes: [
-      "Elimina completamente todas as pragas da lavoura.",
-      "Reduz drasticamente o uso de agrotóxicos, preservando polinizadores e inimigos naturais.",
-      "Aumenta a produtividade em 100% na primeira safra.",
-      "Dispensa completamente o monitoramento da lavoura.",
-    ],
-    correta: 1,
-    feedback:
-      "Muito bem! O MIP reduz significativamente o uso de pesticidas, protegendo abelhas e outros polinizadores essenciais, além de preservar predadores naturais que regulam as populações de pragas.",
-  },
-  {
-    pergunta:
-      "O fungo Beauveria bassiana, muito usado no MIP, é um exemplo de:",
-    opcoes: [
-      "Inseticida químico sintético de terceira geração.",
-      "Agente de controle biológico (fungo entomopatogênico).",
-      "Fertilizante foliar orgânico.",
-      "Herbicida biológico seletivo.",
-    ],
-    correta: 1,
-    feedback:
-      "Excelente! Beauveria bassiana é um fungo entomopatogênico — ele infecta e mata insetos pragas como lagartas, cigarrinhas e moscas-brancas, sendo amplamente utilizado no controle biológico dentro do MIP.",
-  },
-];
+          if (current >= target) {
+            current = target;
+            clearInterval(timer);
+          }
 
-// Variáveis de estado do quiz
-let indicePerguntaAtual = 0;
-let pontuacaoQuiz = 0;
-let quizRespondido = false;
+          // Formata com separador de milhar para números grandes
+          const formatted = target >= 1000
+            ? Math.floor(current).toLocaleString('pt-BR')
+            : Math.floor(current);
 
-/**
- * Inicializa o quiz, configurando eventos dos botões
- */
-function inicializarQuiz() {
-  const btnProxima = document.getElementById("btn-proxima");
-  const btnReiniciar = document.getElementById("btn-reiniciar");
+          el.textContent = formatted + suffix;
+        }, stepTime);
 
-  if (btnProxima) {
-    btnProxima.addEventListener("click", avancarPergunta);
-  }
+        counterObserver.unobserve(el); // executa só uma vez
+      });
+    },
+    { threshold: 0.5 }
+  );
 
-  if (btnReiniciar) {
-    btnReiniciar.addEventListener("click", reiniciarQuiz);
-  }
+  counters.forEach(c => counterObserver.observe(c));
+})();
 
-  renderizarPergunta();
-}
 
-/**
- * Renderiza a pergunta atual na tela (manipula o DOM)
- */
-function renderizarPergunta() {
-  quizRespondido = false;
-  const perguntaAtual = perguntasQuiz[indicePerguntaAtual];
+/* ═══════════════════════════════════════════════════════════
+   6. GALERIA — FILTROS + LIGHTBOX
+   Filtra cards por categoria e abre imagem ampliada
+════════════════════════════════════════════════════════════ */
+(function initGallery() {
+  const filterBtns = $$('.filter-btn');
+  const cards      = $$('.gallery-card');
+  const lightbox   = $('#lightbox');
+  const lbImg      = $('#lightbox-img');
+  const lbCaption  = $('#lightbox-caption');
+  const lbClose    = $('#lightbox-close');
 
-  // DOM: atualiza o texto da pergunta
-  document.getElementById("quiz-pergunta").textContent =
-    `${indicePerguntaAtual + 1}. ${perguntaAtual.pergunta}`;
+  /* ── Filtros ── */
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Atualiza botão ativo
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
 
-  // DOM: renderiza as opções dinamicamente
-  const containerOpcoes = document.getElementById("quiz-opcoes");
-  containerOpcoes.innerHTML = "";
-  perguntaAtual.opcoes.forEach((opcao, i) => {
-    const btn = document.createElement("button");
-    btn.className = "opcao-btn";
-    btn.textContent = opcao;
-    btn.addEventListener("click", () => verificarResposta(i));
-    containerOpcoes.appendChild(btn);
+      const filter = btn.dataset.filter; // "all" | "pragas" | "aliados" | "lavoura"
+
+      cards.forEach(card => {
+        const match = filter === 'all' || card.dataset.category === filter;
+        card.classList.toggle('hidden', !match);
+      });
+    });
   });
 
-  // DOM: esconde feedback e botão "próxima"
-  const feedback = document.getElementById("quiz-feedback");
-  feedback.className = "";
-  feedback.style.display = "none";
-  feedback.textContent = "";
+  /* ── Lightbox ── */
 
-  const btnProxima = document.getElementById("btn-proxima");
-  btnProxima.classList.remove("visivel");
+  // Abre lightbox ao clicar no botão de zoom
+  cards.forEach(card => {
+    const zoomBtn = $('.gallery-zoom', card);
+    const img     = $('img', card);
+    const caption = $('.gallery-info p', card);
 
-  // DOM: atualiza a barra de progresso
-  atualizarBarraProgresso();
-}
+    if (!zoomBtn || !img) return;
 
-/**
- * Atualiza visualmente a barra de progresso do quiz
- */
-function atualizarBarraProgresso() {
-  const pontos = document.querySelectorAll(".prog-ponto");
-  pontos.forEach((ponto, i) => {
-    ponto.classList.remove("ativo", "feito");
-    if (i < indicePerguntaAtual) {
-      ponto.classList.add("feito");
-    } else if (i === indicePerguntaAtual) {
-      ponto.classList.add("ativo");
+    zoomBtn.addEventListener('click', () => openLightbox(img.src, img.alt, caption?.textContent || ''));
+  });
+
+  /**
+   * Abre o lightbox com a imagem e legenda fornecidas
+   * @param {string} src - URL da imagem
+   * @param {string} alt - texto alternativo
+   * @param {string} caption - legenda exibida abaixo
+   */
+  function openLightbox(src, alt, caption) {
+    lbImg.src        = src;
+    lbImg.alt        = alt;
+    lbCaption.textContent = caption;
+    lightbox.hidden  = false;
+    document.body.style.overflow = 'hidden'; // impede scroll enquanto aberto
+    lbClose.focus();
+  }
+
+  /** Fecha o lightbox */
+  function closeLightbox() {
+    lightbox.hidden = true;
+    lbImg.src       = '';
+    document.body.style.overflow = '';
+  }
+
+  // Fecha ao clicar no botão X
+  if (lbClose) lbClose.addEventListener('click', closeLightbox);
+
+  // Fecha ao clicar fora da imagem
+  if (lightbox) {
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+  }
+
+  // Fecha com tecla Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !lightbox.hidden) closeLightbox();
+  });
+})();
+
+
+/* ═══════════════════════════════════════════════════════════
+   7. QUIZ INTERATIVO
+   5 perguntas sobre MIP com pontuação e feedback
+════════════════════════════════════════════════════════════ */
+(function initQuiz() {
+  /* -- Banco de perguntas -- */
+  const perguntas = [
+    {
+      pergunta: "O que significa a sigla MIP?",
+      opcoes: [
+        "Método Integrado de Produção",
+        "Manejo Integrado de Pragas",
+        "Monitoramento Intensivo de Plantio",
+        "Modelo de Inspeção de Pesticides"
+      ],
+      correta: 1,
+      explicacao: "MIP significa Manejo Integrado de Pragas — uma estratégia que combina diferentes métodos de controle para reduzir o uso de agrotóxicos."
+    },
+    {
+      pergunta: "Qual é o primeiro passo recomendado pelo MIP antes de qualquer intervenção na lavoura?",
+      opcoes: [
+        "Aplicar inseticida preventivamente",
+        "Consultar o vizinho sobre o que fazer",
+        "Monitorar e identificar a praga",
+        "Fazer rotação de culturas imediatamente"
+      ],
+      correta: 2,
+      explicacao: "O monitoramento é o alicerce do MIP. Só após identificar a praga e avaliar sua população é que se toma a decisão de intervir."
+    },
+    {
+      pergunta: "O que é o 'nível de ação' no contexto do MIP?",
+      opcoes: [
+        "A quantidade máxima de agrotóxico permitida por hectare",
+        "A densidade de plantas por metro quadrado",
+        "O ponto em que a praga começa a causar dano econômico e se justifica agir",
+        "O número mínimo de insetos necessários para polinização"
+      ],
+      correta: 2,
+      explicacao: "O nível de ação (ou nível de controle) é a densidade populacional da praga em que os prejuízos econômicos justificam o custo de um controle."
+    },
+    {
+      pergunta: "Qual dos organismos abaixo é considerado um aliado natural no MIP?",
+      opcoes: [
+        "Spodoptera frugiperda (lagarta-do-cartucho)",
+        "Trichogramma spp. (microparasitoide de ovos)",
+        "Euschistus heros (percevejo-marrom)",
+        "Bemisia tabaci (mosca-branca)"
+      ],
+      correta: 1,
+      explicacao: "O Trichogramma é uma vespinha que parasita ovos de pragas antes que eclodam, sendo um dos agentes de controle biológico mais usados no Brasil."
+    },
+    {
+      pergunta: "Qual benefício ambiental direto o MIP oferece quando comparado ao controle químico convencional?",
+      opcoes: [
+        "Elimina completamente todas as pragas da lavoura",
+        "Aumenta o uso de agrotóxicos para garantir mais eficiência",
+        "Reduz a contaminação do solo, da água e preserva inimigos naturais",
+        "Substitui a necessidade de irrigação"
+      ],
+      correta: 2,
+      explicacao: "O MIP reduz significativamente o uso de agrotóxicos, diminuindo a contaminação ambiental e preservando a biodiversidade, incluindo os próprios inimigos naturais das pragas."
     }
+  ];
+
+  /* -- Variáveis de estado do quiz -- */
+  let questaoAtual = 0;  // índice da pergunta atual
+  let pontuacao    = 0;  // quantidade de acertos
+  let respondeu    = false; // controla se já respondeu a questão
+
+  /* -- Elementos DOM -- */
+  const questionEl  = $('#quiz-question');
+  const optionsEl   = $('#quiz-options');
+  const feedbackEl  = $('#quiz-feedback');
+  const feedbackTxt = $('#quiz-feedback-text');
+  const nextBtn     = $('#quiz-next');
+  const counterEl   = $('#quiz-counter');
+  const progressBar = $('#quiz-progress-bar');
+  const resultEl    = $('#quiz-result');
+  const resultEmoji = $('#result-emoji');
+  const resultTitle = $('#result-title');
+  const resultScore = $('#result-score');
+  const restartBtn  = $('#quiz-restart');
+  const questionArea= $('#quiz-question-area');
+
+  if (!questionEl) return;
+
+  /** Renderiza a pergunta atual na tela */
+  function renderPergunta() {
+    respondeu = false;
+    nextBtn.disabled = true;
+    feedbackEl.hidden = true;
+
+    const q = perguntas[questaoAtual];
+
+    // Atualiza progresso
+    const progresso = (questaoAtual / perguntas.length) * 100;
+    progressBar.style.width = progresso + '%';
+    counterEl.textContent = `Pergunta ${questaoAtual + 1} de ${perguntas.length}`;
+
+    // Insere a pergunta
+    questionEl.textContent = q.pergunta;
+
+    // Limpa e insere as opções
+    optionsEl.innerHTML = '';
+
+    q.opcoes.forEach((opcao, i) => {
+      const li = document.createElement('li');
+      li.className = 'quiz-option';
+      li.textContent = opcao;
+      li.setAttribute('role', 'button');
+      li.setAttribute('tabindex', '0');
+      li.setAttribute('aria-label', `Opção ${i + 1}: ${opcao}`);
+
+      // Clique na opção
+      li.addEventListener('click', () => responder(i, li));
+
+      // Acessibilidade — Enter/Space também respondem
+      li.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          responder(i, li);
+        }
+      });
+
+      optionsEl.appendChild(li);
+    });
+  }
+
+  /**
+   * Processa a resposta do usuário
+   * @param {number} indice - índice da opção escolhida
+   * @param {Element} el - elemento clicado
+   */
+  function responder(indice, el) {
+    if (respondeu) return; // impede dupla resposta
+    respondeu = true;
+
+    const q       = perguntas[questaoAtual];
+    const acertou = indice === q.correta;
+
+    if (acertou) pontuacao++;
+
+    // Marca visualmente certo/errado
+    const opcoes = $$('.quiz-option', optionsEl);
+    opcoes.forEach((op, i) => {
+      op.classList.add('disabled');
+      if (i === q.correta) op.classList.add('correct');
+      if (i === indice && !acertou) op.classList.add('wrong');
+    });
+
+    // Exibe feedback com explicação
+    feedbackTxt.innerHTML = `
+      <strong>${acertou ? '✅ Correto!' : '❌ Incorreto!'}</strong>
+      ${q.explicacao}
+    `;
+    feedbackEl.hidden = false;
+
+    // Habilita o botão "Próxima"
+    nextBtn.disabled = false;
+
+    // Atualiza melhor pontuação no localStorage se usuário logado
+    salvarPontuacaoQuiz(pontuacao);
+  }
+
+  /** Avança para a próxima pergunta ou exibe resultado final */
+  function avancar() {
+    questaoAtual++;
+
+    if (questaoAtual < perguntas.length) {
+      renderPergunta();
+    } else {
+      exibirResultado();
+    }
+  }
+
+  /** Exibe o resultado final do quiz */
+  function exibirResultado() {
+    progressBar.style.width = '100%';
+    questionArea.hidden = true;
+    feedbackEl.hidden   = true;
+    nextBtn.hidden      = true;
+    counterEl.hidden    = true;
+    resultEl.hidden     = false;
+
+    const pct = (pontuacao / perguntas.length) * 100;
+
+    // Emoji e mensagem conforme desempenho
+    let emoji, titulo;
+    if (pct === 100) {
+      emoji  = '🏆';
+      titulo = 'Perfeito! Você é um especialista em MIP!';
+    } else if (pct >= 60) {
+      emoji  = '🌱';
+      titulo = 'Muito bem! Você conhece bastante sobre MIP!';
+    } else {
+      emoji  = '📚';
+      titulo = 'Continue estudando! O MIP tem muito a ensinar.';
+    }
+
+    resultEmoji.textContent = emoji;
+    resultTitle.textContent = titulo;
+    resultScore.textContent = `Você acertou ${pontuacao} de ${perguntas.length} perguntas.`;
+  }
+
+  /** Reinicia o quiz do zero */
+  function reiniciar() {
+    questaoAtual = 0;
+    pontuacao    = 0;
+
+    questionArea.hidden = false;
+    nextBtn.hidden      = false;
+    counterEl.hidden    = false;
+    resultEl.hidden     = true;
+
+    renderPergunta();
+  }
+
+  // Eventos
+  if (nextBtn)    nextBtn.addEventListener('click', avancar);
+  if (restartBtn) restartBtn.addEventListener('click', reiniciar);
+
+  // Inicializa
+  renderPergunta();
+})();
+
+
+/* ═══════════════════════════════════════════════════════════
+   8. FORMULÁRIO DE CONTATO — VALIDAÇÃO JS
+════════════════════════════════════════════════════════════ */
+(function initContactForm() {
+  const sendBtn    = $('#btn-send-contact');
+  const successMsg = $('#contact-success');
+
+  if (!sendBtn) return;
+
+  sendBtn.addEventListener('click', () => {
+    // Coleta valores
+    const name    = $('#contact-name');
+    const email   = $('#contact-email');
+    const message = $('#contact-message');
+
+    let valido = true;
+
+    // Limpa erros anteriores
+    clearError('contact-name',    'error-name');
+    clearError('contact-email',   'error-email');
+    clearError('contact-message', 'error-message');
+
+    // Valida nome
+    if (!name.value.trim() || name.value.trim().length < 2) {
+      showError(name, 'error-name', 'Informe seu nome (mínimo 2 caracteres).');
+      valido = false;
+    }
+
+    // Valida e-mail com regex
+    if (!isValidEmail(email.value.trim())) {
+      showError(email, 'error-email', 'Informe um e-mail válido.');
+      valido = false;
+    }
+
+    // Valida mensagem
+    if (!message.value.trim() || message.value.trim().length < 10) {
+      showError(message, 'error-message', 'A mensagem deve ter ao menos 10 caracteres.');
+      valido = false;
+    }
+
+    if (!valido) return;
+
+    // Simula envio (sem backend)
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Enviando…';
+
+    setTimeout(() => {
+      successMsg.hidden = false;
+      sendBtn.hidden    = true;
+
+      // Limpa formulário
+      $('#contact-name').value    = '';
+      $('#contact-email').value   = '';
+      $('#contact-subject').value = '';
+      $('#contact-message').value = '';
+    }, 1000);
   });
-}
+})();
 
-/**
- * Verifica a resposta escolhida pelo usuário
- * @param {number} indiceEscolhido - Índice da opção clicada
- */
-function verificarResposta(indiceEscolhido) {
-  if (quizRespondido) return;
-  quizRespondido = true;
 
-  const perguntaAtual = perguntasQuiz[indicePerguntaAtual];
-  const botoes = document.querySelectorAll(".opcao-btn");
+/* ═══════════════════════════════════════════════════════════
+   9. NEWSLETTER — VALIDAÇÃO JS
+════════════════════════════════════════════════════════════ */
+(function initNewsletter() {
+  const subscribeBtn = $('#btn-subscribe');
+  const successMsg   = $('#newsletter-success');
 
-  // Desabilita todos os botões após responder
-  botoes.forEach((btn) => (btn.disabled = true));
+  if (!subscribeBtn) return;
 
-  const feedback = document.getElementById("quiz-feedback");
+  subscribeBtn.addEventListener('click', () => {
+    const emailEl = $('#newsletter-email');
+    clearError('newsletter-email', 'error-newsletter');
 
-  if (indiceEscolhido === perguntaAtual.correta) {
-    pontuacaoQuiz++;
-    // DOM: marca o botão correto e exibe feedback de sucesso
-    botoes[indiceEscolhido].classList.add("correta");
-    feedback.className = "sucesso";
-    feedback.style.display = "block";
-    feedback.innerHTML = `✅ <strong>Correto!</strong> ${perguntaAtual.feedback}`;
-  } else {
-    // DOM: marca o errado e destaca o correto
-    botoes[indiceEscolhido].classList.add("errada");
-    botoes[perguntaAtual.correta].classList.add("correta");
-    feedback.className = "erro";
-    feedback.style.display = "block";
-    feedback.innerHTML = `❌ <strong>Incorreto.</strong> ${perguntaAtual.feedback}`;
+    if (!isValidEmail(emailEl.value.trim())) {
+      showError(emailEl, 'error-newsletter', 'Informe um e-mail válido para se inscrever.');
+      return;
+    }
+
+    // Salva e-mail inscrito no localStorage
+    const inscritos = getStorage('agromip_newsletter') || [];
+    if (!inscritos.includes(emailEl.value.trim())) {
+      inscritos.push(emailEl.value.trim());
+      setStorage('agromip_newsletter', inscritos);
+    }
+
+    subscribeBtn.disabled = true;
+    subscribeBtn.textContent = 'Inscrevendo…';
+
+    setTimeout(() => {
+      successMsg.hidden       = false;
+      subscribeBtn.hidden     = true;
+      $('#newsletter-name').value  = '';
+      emailEl.value                = '';
+    }, 800);
+  });
+})();
+
+
+/* ═══════════════════════════════════════════════════════════
+   10. SISTEMA DE LOGIN / CONTA — localStorage
+   Cadastro, login, logout e exibição de dados do usuário
+════════════════════════════════════════════════════════════ */
+(function initAuth() {
+  /* -- Elementos DOM -- */
+  const btnAccount   = $('#btn-account');
+  const accountLabel = $('#account-label');
+  const modal        = $('#modal-auth');
+  const modalOverlay = $('#modal-overlay');
+  const modalClose   = $('#modal-close');
+
+  const tabLogin     = $('#tab-login');
+  const tabRegister  = $('#tab-register');
+  const panelLogin   = $('#panel-login');
+  const panelRegister= $('#panel-register');
+  const panelLogged  = $('#panel-logged');
+
+  const btnLogin     = $('#btn-login');
+  const btnRegister  = $('#btn-register');
+  const btnLogout    = $('#btn-logout');
+
+  if (!modal) return;
+
+  /* -- Abre/fecha modal -- */
+
+  btnAccount.addEventListener('click', () => {
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    atualizarModalParaEstado();
+  });
+
+  function fecharModal() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    clearError('login-email',    'error-login');
+    clearError('reg-email',      'error-register');
   }
 
-  // DOM: exibe o botão de avançar
-  document.getElementById("btn-proxima").classList.add("visivel");
+  modalClose.addEventListener('click', fecharModal);
+  modalOverlay.addEventListener('click', fecharModal);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal.hidden) fecharModal();
+  });
+
+  /* -- Abas login / cadastro -- */
+
+  tabLogin.addEventListener('click', () => mudarAba('login'));
+  tabRegister.addEventListener('click', () => mudarAba('register'));
+
+  /**
+   * Alterna entre painéis de login e cadastro
+   * @param {'login'|'register'} aba
+   */
+  function mudarAba(aba) {
+    const isLogin = aba === 'login';
+    tabLogin.classList.toggle('active', isLogin);
+    tabRegister.classList.toggle('active', !isLogin);
+    tabLogin.setAttribute('aria-selected', isLogin);
+    tabRegister.setAttribute('aria-selected', !isLogin);
+    panelLogin.hidden    = !isLogin;
+    panelRegister.hidden = isLogin;
+    clearError('login-email',  'error-login');
+    clearError('reg-email',    'error-register');
+  }
+
+  /* -- Cadastro -- */
+
+  btnRegister.addEventListener('click', () => {
+    clearError('reg-email', 'error-register');
+
+    const name     = $('#reg-name').value.trim();
+    const email    = $('#reg-email').value.trim();
+    const password = $('#reg-password').value;
+
+    // Validações
+    if (!name) {
+      showError($('#reg-name'), 'error-register', 'Informe seu nome.');
+      return;
+    }
+    if (!isValidEmail(email)) {
+      showError($('#reg-email'), 'error-register', 'Informe um e-mail válido.');
+      return;
+    }
+    if (password.length < 6) {
+      showError($('#reg-password'), 'error-register', 'A senha deve ter ao menos 6 caracteres.');
+      return;
+    }
+
+    // Verifica se e-mail já existe
+    const usuarios = getStorage('agromip_users') || {};
+    if (usuarios[email]) {
+      showError($('#reg-email'), 'error-register', 'Este e-mail já está cadastrado.');
+      return;
+    }
+
+    // Salva usuário (NUNCA salve senhas em texto puro em produção real!)
+    usuarios[email] = { name, email, password, quizBest: 0 };
+    setStorage('agromip_users', usuarios);
+
+    // Faz login automático após cadastro
+    logarUsuario(usuarios[email]);
+  });
+
+  /* -- Login -- */
+
+  btnLogin.addEventListener('click', () => {
+    clearError('login-email', 'error-login');
+
+    const email    = $('#login-email').value.trim();
+    const password = $('#login-password').value;
+
+    if (!isValidEmail(email)) {
+      showError($('#login-email'), 'error-login', 'Informe um e-mail válido.');
+      return;
+    }
+
+    const usuarios = getStorage('agromip_users') || {};
+    const usuario  = usuarios[email];
+
+    if (!usuario || usuario.password !== password) {
+      showError($('#login-email'), 'error-login', 'E-mail ou senha incorretos.');
+      return;
+    }
+
+    logarUsuario(usuario);
+  });
+
+  /* -- Logout -- */
+
+  btnLogout.addEventListener('click', () => {
+    deleteCookie('agromip_session');
+    atualizarNavbarConta(null);
+    fecharModal();
+    atualizarModalParaEstado();
+  });
+
+  /**
+   * Salva sessão e atualiza UI após login bem-sucedido
+   * @param {{ name: string, email: string }} usuario
+   */
+  function logarUsuario(usuario) {
+    // Salva sessão em cookie (1 dia)
+    setCookie('agromip_session', JSON.stringify({ email: usuario.email, name: usuario.name }), 1);
+    atualizarNavbarConta(usuario);
+    atualizarModalParaEstado();
+  }
+
+  /**
+   * Atualiza o botão de conta na navbar
+   * @param {{ name: string }|null} usuario - null se deslogado
+   */
+  function atualizarNavbarConta(usuario) {
+    if (usuario) {
+      accountLabel.textContent = usuario.name.split(' ')[0]; // primeiro nome
+      $('#account-icon').textContent = '✅';
+    } else {
+      accountLabel.textContent = 'Entrar';
+      $('#account-icon').textContent = '👤';
+    }
+  }
+
+  /** Exibe o painel correto no modal conforme estado de sessão */
+  function atualizarModalParaEstado() {
+    const sessaoCookie = getCookie('agromip_session');
+    const tabs = $('.modal-tabs', modal);
+
+    if (sessaoCookie) {
+      try {
+        const sessao   = JSON.parse(sessaoCookie);
+        const usuarios = getStorage('agromip_users') || {};
+        const usuario  = usuarios[sessao.email];
+
+        // Esconde abas e mostra painel de usuário logado
+        tabs.hidden          = true;
+        panelLogin.hidden    = true;
+        panelRegister.hidden = true;
+        panelLogged.hidden   = false;
+
+        $('#logged-name').textContent         = `Olá, ${sessao.name.split(' ')[0]}! 👋`;
+        $('#logged-email-display').textContent = sessao.email;
+        $('#logged-quiz-score').textContent    = usuario?.quizBest ?? '0';
+
+      } catch {
+        deleteCookie('agromip_session');
+      }
+    } else {
+      tabs.hidden          = false;
+      panelLogged.hidden   = true;
+      mudarAba('login');
+    }
+  }
+
+  /* Verifica sessão ao carregar a página */
+  const sessaoCookie = getCookie('agromip_session');
+  if (sessaoCookie) {
+    try {
+      const sessao = JSON.parse(sessaoCookie);
+      atualizarNavbarConta(sessao);
+    } catch {
+      deleteCookie('agromip_session');
+    }
+  }
+})();
+
+/**
+ * Salva melhor pontuação do quiz no perfil do usuário logado
+ * @param {number} pontuacao
+ */
+function salvarPontuacaoQuiz(pontuacao) {
+  const sessaoCookie = getCookie('agromip_session');
+  if (!sessaoCookie) return;
+
+  try {
+    const sessao   = JSON.parse(sessaoCookie);
+    const usuarios = getStorage('agromip_users') || {};
+
+    if (usuarios[sessao.email]) {
+      const melhor = usuarios[sessao.email].quizBest || 0;
+
+      if (pontuacao > melhor) {
+        usuarios[sessao.email].quizBest = pontuacao;
+        setStorage('agromip_users', usuarios);
+
+        // Atualiza exibição no painel logado
+        const scoreEl = $('#logged-quiz-score');
+        if (scoreEl) scoreEl.textContent = pontuacao;
+      }
+    }
+  } catch (e) {
+    console.warn('Erro ao salvar pontuação:', e);
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   11. BOTÃO VOLTAR AO TOPO
+════════════════════════════════════════════════════════════ */
+(function initBackToTop() {
+  const btn = $('#btn-top');
+  if (!btn) return;
+
+  window.addEventListener('scroll', () => {
+    btn.hidden = window.scrollY < 400;
+  }, { passive: true });
+
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+
+
+/* ═══════════════════════════════════════════════════════════
+   12. COOKIES DE PREFERÊNCIAS ADICIONAIS
+   Registra primeira visita e exibe boas-vindas
+════════════════════════════════════════════════════════════ */
+(function initPreferencesCookie() {
+  const primeiraVisita = getCookie('agromip_visited');
+
+  if (!primeiraVisita) {
+    // Primeira vez que o usuário acessa o site
+    setCookie('agromip_visited', 'true', 365);
+    console.log('👋 Bem-vindo(a) ao AgroMIP! Primeira visita registrada.');
+  } else {
+    console.log('🌿 Bem-vindo(a) de volta ao AgroMIP!');
+  }
+
+  // Registra data/hora da última visita
+  setCookie('agromip_last_visit', new Date().toISOString(), 365);
+})();
+
+
+/* ═══════════════════════════════════════════════════════════
+   FUNÇÕES AUXILIARES COMPARTILHADAS
+════════════════════════════════════════════════════════════ */
+
+/**
+ * Valida formato de e-mail com regex
+ * @param {string} email
+ * @returns {boolean}
+ */
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 /**
- * Avança para a próxima pergunta ou exibe o resultado final
+ * Exibe mensagem de erro em campo de formulário
+ * @param {Element} input - campo com erro
+ * @param {string} errorId - id do elemento de erro
+ * @param {string} msg - mensagem de erro
  */
-function avancarPergunta() {
-  indicePerguntaAtual++;
+function showError(input, errorId, msg) {
+  if (input)  input.classList.add('error');
+  const errEl = $(`#${errorId}`);
+  if (errEl) errEl.textContent = msg;
+}
 
-  if (indicePerguntaAtual < perguntasQuiz.length) {
-    renderizarPergunta();
-  } else {
-    exibirResultado();
+/**
+ * Limpa erro de campo de formulário
+ * @param {string} inputId - id do campo
+ * @param {string} errorId - id do elemento de erro
+ */
+function clearError(inputId, errorId) {
+  const input = $(`#${inputId}`);
+  const errEl = $(`#${errorId}`);
+  if (input)  input.classList.remove('error');
+  if (errEl)  errEl.textContent = '';
+}
+
+/**
+ * Salva dado no localStorage como JSON
+ * @param {string} key
+ * @param {*} value
+ */
+function setStorage(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    console.warn('localStorage indisponível:', e);
   }
 }
 
 /**
- * Exibe o resultado final do quiz e salva nos cookies
+ * Lê e parseia dado do localStorage
+ * @param {string} key
+ * @returns {*|null}
  */
-function exibirResultado() {
-  const total = perguntasQuiz.length;
-  const percentual = Math.round((pontuacaoQuiz / total) * 100);
-
-  // DOM: esconde a área de perguntas e mostra o resultado
-  document.getElementById("quiz-area").classList.add("oculto");
-  const resultado = document.getElementById("quiz-resultado");
-  resultado.classList.add("visivel");
-
-  // DOM: preenche os dados do resultado
-  document.getElementById("resultado-emoji").textContent =
-    percentual === 100 ? "🏆" : percentual >= 70 ? "🌿" : percentual >= 40 ? "📚" : "🌱";
-
-  document.getElementById("resultado-pontuacao").textContent =
-    `${pontuacaoQuiz} / ${total} (${percentual}%)`;
-
-  const mensagens = {
-    100: "Perfeito! Você domina o MIP. Futuro(a) agrônomo(a)!",
-    70: "Muito bem! Você entende os conceitos fundamentais do MIP.",
-    40: "Bom começo! Revise o conteúdo e tente novamente.",
-    0: "Continue aprendendo! O MIP tem muito a oferecer.",
-  };
-  const chave = percentual === 100 ? 100 : percentual >= 70 ? 70 : percentual >= 40 ? 40 : 0;
-  document.getElementById("resultado-mensagem").textContent = mensagens[chave];
-
-  // Salva o resultado nos cookies e atualiza o badge
-  const textoHistorico = `${pontuacaoQuiz}/${total} (${percentual}%) — último teste`;
-  definirCookie("agrinho_quiz_historico", textoHistorico, 7);
-  const elHistorico = document.getElementById("status-cookie");
-  if (elHistorico) elHistorico.textContent = textoHistorico;
-}
-
-/**
- * Reinicia o quiz do zero
- */
-function reiniciarQuiz() {
-  indicePerguntaAtual = 0;
-  pontuacaoQuiz = 0;
-  quizRespondido = false;
-
-  // DOM: esconde resultado e mostra área de perguntas
-  document.getElementById("quiz-resultado").classList.remove("visivel");
-  document.getElementById("quiz-area").classList.remove("oculto");
-
-  renderizarPergunta();
+function getStorage(key) {
+  try {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : null;
+  } catch (e) {
+    console.warn('Erro ao ler localStorage:', e);
+    return null;
+  }
 }
